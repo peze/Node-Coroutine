@@ -1,0 +1,8 @@
+text
+CMakeLists.txt
+**/cmake-build-debug
+**/build
+**/.idea
+test/test.cpp
+test/test1.js
+test/thread.js

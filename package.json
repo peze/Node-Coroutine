@@ -1,0 +1,19 @@
+{
+  "name": "node-coroutine",
+  "description": "the node coroutine moudle.",
+  "version": "1.0.0",
+  "author": "page",
+  "main": "./index",
+  "directories": {
+    "lib": "./src"
+  },
+  "scripts": {
+    "_preinstall": "make"
+  },
+  "dependencies": {
+    "bluebird": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}

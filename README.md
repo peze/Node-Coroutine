@@ -1,6 +1,6 @@
 # Node-Coroutine
-node协程模块，使用了libco的部分代码完成该模块.（目前还仍有崩溃问题，仍在寻求问题中）.
-
+node协程模块，使用了libco的部分代码完成该模块.（目前还仍有崩溃问题，仍在寻求问题中，若有使用需求请跳转 [node-coroutine-js
+](https://github.com/peze/node-coroutine-js)若想了解开发过程以及问题请继续看。)
 example:
 	
 	const co = require("../index");

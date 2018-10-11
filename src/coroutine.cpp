@@ -4,9 +4,10 @@
 
 extern stCoRoutineEnv_t *env;
 extern "C" {
-    void *ap;
     extern void context_init(coctx_t *) asm("context_init");
 }
+
+uintptr_t min_stack = 0;
 
 void queue_work(uv_work_t *req){
     if(!co_list.empty() && req->data == NULL){
@@ -26,10 +27,8 @@ void after_queue_work(uv_work_t *req, int status){
     HandleScope scope(globalIsolate);
     coroutine_info* co_arg = (coroutine_info*) req->data;
     env->pCallStack[ env->iCallStackSize++ ] = co_arg->coroutine;
-    Local<Context> context = globalIsolate->GetCurrentContext();
     stCoRoutine_t* curr_co = env->pCallStack[ env->iCallStackSize - 2];
     stCoRoutine_t* pending_co = co_arg->coroutine;
-    co_arg->context.Reset(globalIsolate,context);
     co_swap( curr_co, pending_co, 0);
     free(req);
     return;
@@ -66,14 +65,21 @@ void* coroutine_func( void * args){
     coroutine_info* co_arg = (coroutine_info*) args;
     co_list.push_back(co_arg);
     HandleScope scope(globalIsolate);
-    v8::Local<v8::Context> context = Local<Context>::New(globalIsolate,co_arg->context);
-    v8::Context::Scope context_scope(context);
     Local<Value> params[1] = {Local<Value>::New(globalIsolate,co_arg->params)};
     Local<Function> callback = Local<Function>::New(globalIsolate,co_arg->cb);
     Local<Object> global =  globalIsolate->GetCurrentContext()->Global();
+    uintptr_t limit = reinterpret_cast<uintptr_t>(&limit) - (co_arg->coroutine->ctx).ss_size;
     callback->Call(global,1,params);
     co_yield();
     return NULL;
+}
+
+void set_stack_limit(coctx_t* ctx){
+    uintptr_t sp = reinterpret_cast<uintptr_t>(ctx->ss_sp);
+    if( (min_stack != 0 && sp < min_stack) || min_stack == 0){
+        min_stack = sp;
+        globalIsolate->SetStackLimit(min_stack); //重设stack限制
+    }
 }
 
 void create_coroutine(const FunctionCallbackInfo<Value> &args){
@@ -92,8 +98,8 @@ void create_coroutine(const FunctionCallbackInfo<Value> &args){
     (co_arg->cb).Reset(globalIsolate,callback);
     co_create(&co_arg->coroutine,NULL,coroutine_func,(void*)co_arg);
     coctx_init(&co_arg->coroutine->ctx,coroutine_func,co_arg);
+    set_stack_limit(&co_arg->coroutine->ctx);
     coObject->SetAlignedPointerInInternalField(0, co_arg);
-
     args.GetReturnValue().Set(coObject);
 }
 

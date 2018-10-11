@@ -10,7 +10,6 @@ void init(Local<Object> exports) {
     /*注册api函数*/
 
     globalIsolate = exports->GetIsolate();
-    globalIsolate->SetStackLimit(1); //取消stack限制
     Local<FunctionTemplate> CoroutineClass = FunctionTemplate::New(globalIsolate, New);
     CoroutineClass->SetClassName(v8::String::NewFromUtf8(globalIsolate, "Coroutine"));
     v8::Local<ObjectTemplate> CoroutineClassPrototype = CoroutineClass->PrototypeTemplate();

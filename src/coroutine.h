@@ -18,7 +18,6 @@ static struct coroutine_info{
     Persistent<Function> cb;
     stCoRoutine_t* coroutine;
     Persistent<Value> params;
-    Persistent<Context> context;
 };
 
 

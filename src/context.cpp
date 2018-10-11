@@ -114,7 +114,7 @@ int co_create( stCoRoutine_t **pco,const stCoRoutineAttr_t *attr,pfn_co_routine_
         memcpy( &at,attr,sizeof(at) );
     }
     if( at.stack_size <= 0 ) {
-        at.stack_size = 1024  * 1024 * 8;
+        at.stack_size = 128  * 1024 * 8;
     } else if( at.stack_size > 1024 * 1024 * 8 ) {
         at.stack_size = 1024 * 1024 * 8;
     }
